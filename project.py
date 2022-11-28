@@ -3,18 +3,15 @@ import os
 
 pygame.init()
 
-fps = 60
 width, height = 900, 500
 screen = pygame.display.set_mode((width, height))
     
 pygame.display.set_caption("Jumpie Cat")
 
-logo = pygame.image.load("pic juppiecat/cat run up right.png")
+logo = pygame.image.load("pic juppiecat/catwallpaper.png")
 pygame.display.set_icon(logo)
 
 # เพื่มรูปภาพที่ใช้ในgame
-
-font_color = (0, 0, 0)
 
 def main():
     run = True
