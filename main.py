@@ -2,17 +2,14 @@ import pygame
 import os
 import random
 import datetime
-import sys
-
 pygame.init()
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 1100, 600
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
+    
 pygame.display.set_caption("Jumppie Cat")
 
 LOGO = pygame.image.load("Assets/catwallpaper.png")
-
 pygame.display.set_icon(LOGO)
 
 RUNNING = [pygame.image.load(os.path.join("Assets/cat", "CatRun1.png")),
@@ -30,25 +27,19 @@ BEE = [pygame.image.load(os.path.join("Assets/obstruction", "bee1.png")),
 
 CLOUD = pygame.image.load(os.path.join("Assets/Other", "cloud.png"))
 
-STONE = [pygame.image.load(os.path.join("Assets/obstruction", "stone2.png")),
-        pygame.image.load(os.path.join("Assets/obstruction", "stone3.png"))]
-
-
 BG = pygame.image.load(os.path.join("Assets/Other", "map.png"))
+
 FPS = 60
 BLACK = (0, 0, 0)
 WHITE = (255, 255 , 255)
 GRAY = (128, 128, 128)
-BLUE = (226, 247, 252)
-GREEN = (108, 196, 161)
-CARAMEL = (247, 233, 215)
 
 class Cat:
     X_POS = 80
     Y_POS = 310
-    Y_POS_DUCK = 350
+    Y_POS_DUCK = 340
     JUMP_VEL = 8.5
-
+    
     def __init__(self):
         self.duck_img = DUCKING
         self.run_img = RUNNING
@@ -75,7 +66,7 @@ class Cat:
 
         if self.step_index >= 10:
             self.step_index = 0
-
+        # change    
         if (userinput[pygame.K_UP] or userinput[pygame.K_SPACE] or userinput[pygame.K_w]) and not self.cat_jump:
             self.cat_duck = False
             self.cat_run = False
@@ -88,21 +79,21 @@ class Cat:
             self.cat_duck = False
             self.cat_run = True
             self.cat_jump = False
-
+    
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
         self.cat_rect = self.image.get_rect()
         self.cat_rect.x = self.X_POS
         self.cat_rect.y = self.Y_POS_DUCK
         self.step_index += 1
-
+    
     def run(self):
         self.image = self.run_img[self.step_index // 5]
         self.cat_rect = self.image.get_rect()
         self.cat_rect.x = self.X_POS
         self.cat_rect.y = self.Y_POS
         self.step_index += 1
-
+    
     def jump(self):
         self.image = self.jump_img
         if self.cat_jump:
@@ -121,7 +112,7 @@ class Cloud:
         self.y = random.randint(50, 100)
         self.image = CLOUD
         self.width = self.image.get_width()
-
+        
     def update(self):
         self.x -= game_speed
         if self.x < -self.width:
@@ -137,12 +128,12 @@ class obstacle:
         self.type = type
         self.rect = self.image[self.type].get_rect()
         self.rect.x = SCREEN_WIDTH
-
+    
     def update(self):
         self.rect.x -= game_speed
         if self.rect.x < -self.rect.width:
             obstacles.pop()
-
+    
     def draw(self, SCREEN):
         SCREEN.blit(self.image[self.type], self.rect)
 
@@ -152,27 +143,21 @@ class Tree(obstacle):
         super().__init__(image, self.type)
         self.rect.y = 325
 
-class Stone(obstacle):
-    def __init__(self, image):
-        self.type = random.randint(0, 1)
-        super().__init__(image, self.type)
-        self.rect.y = 370
-
 class Bee(obstacle):
-    BEE_HEIGHTS = [250, 290, 350]
-
+    BEE_HEIGHTS = [250, 290, 320]
+    
     def __init__(self, image):
         self.type = 0
         super().__init__(image, self.type)
         self.rect.y = random.choice(self.BEE_HEIGHTS)
         self.index = 0
-
+    
     def draw(self, SCREEN):
         if self.index >= 9:
             self.index = 0
         SCREEN.blit(self.image[self.index // 5], self.rect)
         self.index += 1
-
+        
 def main():
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles
     run = True
@@ -183,15 +168,15 @@ def main():
     x_pos_bg = 0
     y_pos_bg = 400
     points = 0
-    font = pygame.font.Font(os.path.join("Assets/FreeSansBold.ttf"), 20)
+    font = pygame.font.Font("Assets/Font/Poppins-Medium.ttf", 21)
     obstacles = []
     death_count = 0
-
+    
     def score():
         global points, game_speed, current_time
         points += 1
         if points % 200 == 0:
-            game_speed += 0.5
+            game_speed += 0.25
         current_time = datetime.datetime.now().hour
         with open("score.txt", "r") as f:
             score_ints = [int(x) for x in f.read().split()]
@@ -202,7 +187,7 @@ def main():
         textrect = text.get_rect()
         textrect.center = (900, 40)
         SCREEN.blit(text, textrect)
-
+    
     def background():
         global x_pos_bg, y_pos_bg
         image_width = BG.get_width()
@@ -212,30 +197,28 @@ def main():
             SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
             x_pos_bg = 0
         x_pos_bg -= game_speed
-
+    
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
+        
         current_time = datetime.datetime.now().hour
         if 7 < current_time < 19:
             SCREEN.fill(WHITE)
         else:
-            SCREEN.fill(BLUE)
+            SCREEN.fill(BLACK)
         userinput = pygame.key.get_pressed()
-
+        
         player.draw(SCREEN)
         player.update(userinput)
-
+        
         if len(obstacles) == 0:
             if random.randint(0, 2) == 0:
                 obstacles.append(Tree(TREE))
             elif random.randint(0, 2) == 1:
                 obstacles.append(Bee(BEE))
-            elif random.randint(0, 2) == 2:
-                obstacles.append(Stone(STONE))
-
+        
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
             obstacle.update()
@@ -243,14 +226,14 @@ def main():
                 pygame.time.delay(2000)
                 death_count += 1
                 menu(death_count)
-
+        
         background()
-
+        
         cloud.draw(SCREEN)
         cloud.update()
-
+        
         score()
-
+        
         clock.tick(FPS)
         pygame.display.update()
 
@@ -260,18 +243,18 @@ def menu(death_count):
     while run:
         current_time = datetime.datetime.now().hour
         if 7 < current_time < 19:
-           FONT_COLOR = BLACK
-           SCREEN.fill(WHITE)
-        else:
             FONT_COLOR = BLACK
-            SCREEN.fill(GREEN)
-        font = pygame.font.Font(os.path.join("Assets/FreeSansBold.ttf"), 30)
-
+            SCREEN.fill(WHITE)
+        else:
+            FONT_COLOR = WHITE
+            SCREEN.fill(GRAY)
+        font = pygame.font.Font("Assets/Font/Poppins-Medium.ttf", 28)
+        
         if death_count == 0:
-            text = font.render("Press any Key to Start", True, FONT_COLOR)
+            text = font.render("Press any Key to Strat", True, FONT_COLOR)
         elif death_count > 0:
             text = font.render("Press any Key to Restart", True, FONT_COLOR)
-            score = font.render("Your Score : " + str(points), True, FONT_COLOR)
+            score = font.render("Your Score: " + str(points), True, FONT_COLOR)
             scorerect = score.get_rect()
             scorerect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
             SCREEN.blit(score, scorerect)
@@ -296,8 +279,8 @@ def menu(death_count):
                 run = False
                 pygame.display.quit()
                 pygame.quit()
-                sys.exit()
+                exit()
             if event.type == pygame.KEYDOWN:
                 main()
-
+                
 menu(death_count = 0)
